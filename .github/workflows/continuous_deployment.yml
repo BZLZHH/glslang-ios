@@ -36,7 +36,7 @@ jobs:
             matrix:
                 os: [{genus: macos-13, family: osx}]
                 compiler: [{cc: clang, cxx: clang++}]
-                cmake_build_type: [Debug, Release]
+                cmake_build_type: [Release]
         steps:
             - uses: actions/checkout@v3
             - uses: lukka/get-cmake@acb35cf920333f4dc3fc4f424f1b30d5e7d561b4 # v3.31.4
@@ -55,7 +55,7 @@ jobs:
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
                     -DCMAKE_OSX_ARCHITECTURES="arm64" \  # iOS device architecture (can also use "x86_64;arm64" for simulators)
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \  # Set to a minimum supported version for iOS
+                    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.5 \  # Set to a minimum supported version for iOS
                     -DCMAKE_OSX_SYSROOT=`xcodebuild -version -sdk iphoneos Path` \  # Use iOS SDK for the build
                     ..
                   make -j4 install
