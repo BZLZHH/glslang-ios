@@ -53,9 +53,9 @@ jobs:
                     -DCMAKE_BUILD_TYPE=${{matrix.cmake_build_type}} \
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
-                    -DCMAKE_OSX_ARCHITECTURES="arm64" \  # iOS device architecture (can also use "x86_64;arm64" for simulators)
-                    #-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \  # Set to a minimum supported version for iOS
-                    -DCMAKE_OSX_SYSROOT=$IOS_SDK_PATH \  # Use iOS SDK dynamically
+                    -DCMAKE_OSX_ARCHITECTURES="arm64" \
+                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+                    -DCMAKE_OSX_SYSROOT=$IOS_SDK_PATH \
                     ..
                   make -j4 install
             - name: Test
