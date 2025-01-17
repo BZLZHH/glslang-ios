@@ -81,12 +81,9 @@ jobs:
                       lib/libSPVRemapper.a \
                       lib/libSPIRV-Tools.a \
                       lib/libSPIRV-Tools-opt.a
-            - name: Deploy
-              env:
-                  ARCHIVE: glslang-main-ios-${{matrix.cmake_build_type}}.zip
-              uses: actions/github-script@v7.0.1
+            - name: Upload Artifacts
+              uses: actions/upload-artifact@v3
               with:
-                  script: |
-                      const script = require('.github/workflows/deploy.js')
-                      await script({github, context, core})
+                  name: glslang-main-ios-${{matrix.cmake_build_type}}
+                  path: build/install/${{env.ARCHIVE}}
 
