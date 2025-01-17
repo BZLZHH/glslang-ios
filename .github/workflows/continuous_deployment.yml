@@ -54,7 +54,7 @@ jobs:
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
                     -DCMAKE_OSX_ARCHITECTURES="arm64" \
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+                    -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
                     -DCMAKE_OSX_SYSROOT=$IOS_SDK_PATH \
                     ..
                   make -j4 install
