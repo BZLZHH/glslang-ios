@@ -1,3 +1,10 @@
+# NOTE: The following documentation may be useful to maintainers of this workflow.
+# Github actions: https://docs.github.com/en/actions
+# Github github-script action: https://github.com/actions/github-script
+# GitHub REST API: https://docs.github.com/en/rest
+# Octokit front-end to the GitHub REST API: https://octokit.github.io/rest.js/v18
+# Octokit endpoint methods: https://github.com/octokit/plugin-rest-endpoint-methods.js/tree/master/docs/repos
+
 name: Continuous Deployment
 
 on:
@@ -20,49 +27,48 @@ on:
 permissions: read-all
 
 jobs:
-    ios:
-        name: "Build for iOS (OS64)"
+    macos:
         runs-on: macos-latest
         permissions:
             contents: write
         strategy:
             fail-fast: false
             matrix:
+                os: [{genus: macos-13, family: osx}]
+                compiler: [{cc: clang, cxx: clang++}]
                 cmake_build_type: [Debug, Release]
         steps:
-            - uses: actions/checkout@v4
-
-            - uses: lukka/get-cmake@v3.31.4
-
-            - uses: actions/setup-python@v5
+            - uses: actions/checkout@v3
+            - uses: lukka/get-cmake@acb35cf920333f4dc3fc4f424f1b30d5e7d561b4 # v3.31.4
+            - uses: actions/setup-python@v4
               with:
                   python-version: '3.7'
-
             - run: ./update_glslang_sources.py
-
-            - name: Build
+            - name: Build for iOS (OS64)
+              env:
+                  CC: ${{matrix.compiler.cc}}
+                  CXX: ${{matrix.compiler.cxx}}
               run: |
                   mkdir build && cd build
                   cmake .. \
                     -DCMAKE_BUILD_TYPE=${{matrix.cmake_build_type}} \
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
-                    -DCMAKE_OSX_ARCHITECTURES=arm64 \
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-                    -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk iphoneos Path)
+                    -DCMAKE_OSX_ARCHITECTURES="arm64" \  # iOS device architecture (can also use "x86_64;arm64" for simulators)
+                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \  # Set to a minimum supported version for iOS
+                    -DCMAKE_OSX_SYSROOT=`xcodebuild -version -sdk iphoneos Path` \  # Use iOS SDK for the build
+                    ..
                   make -j4 install
-
             - name: Test
               run: |
                   cd build
                   ctest --output-on-failure
-
             - name: Zip
               env:
                   ARCHIVE: glslang-main-ios-${{matrix.cmake_build_type}}.zip
               run: |
                   cd build/install
-                  zip -r ${ARCHIVE} \
+                  zip ${ARCHIVE} \
                       bin/glslang \
                       bin/glslangValidator \
                       include/glslang/* \
@@ -76,12 +82,12 @@ jobs:
                       lib/libSPVRemapper.a \
                       lib/libSPIRV-Tools.a \
                       lib/libSPIRV-Tools-opt.a
-
             - name: Deploy
               env:
                   ARCHIVE: glslang-main-ios-${{matrix.cmake_build_type}}.zip
-              uses: actions/github-script@v7
+              uses: actions/github-script@v7.0.1
               with:
                   script: |
                       const script = require('.github/workflows/deploy.js')
                       await script({github, context, core})
+
