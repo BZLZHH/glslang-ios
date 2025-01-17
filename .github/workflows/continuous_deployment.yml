@@ -55,7 +55,7 @@ jobs:
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
                     -DCMAKE_OSX_ARCHITECTURES="arm64" \  # iOS device architecture (can also use "x86_64;arm64" for simulators)
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.5 \  # Set to a minimum supported version for iOS
+                    #-DCMAKE_OSX_DEPLOYMENT_TARGET=10.5 \  # Set to a minimum supported version for iOS
                     -DCMAKE_OSX_SYSROOT=`xcodebuild -version -sdk iphoneos Path` \  # Use iOS SDK for the build
                     ..
                   make -j4 install
