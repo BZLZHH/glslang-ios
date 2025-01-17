@@ -42,7 +42,7 @@ jobs:
             - uses: lukka/get-cmake@acb35cf920333f4dc3fc4f424f1b30d5e7d561b4 # v3.31.4
             - uses: actions/setup-python@v4
               with:
-                  python-version: '3.7'
+                  python-version: '3.14.0-alpha.4'
             - run: ./update_glslang_sources.py
             - name: Build for iOS (OS64)
               env:
