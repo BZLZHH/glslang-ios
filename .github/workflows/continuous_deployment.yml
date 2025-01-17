@@ -1,10 +1,3 @@
-# NOTE: The following documentation may be useful to maintainers of this workflow.
-# Github actions: https://docs.github.com/en/actions
-# Github github-script action: https://github.com/actions/github-script
-# GitHub REST API: https://docs.github.com/en/rest
-# Octokit front-end to the GitHub REST API: https://octokit.github.io/rest.js/v18
-# Octokit endpoint methods: https://github.com/octokit/plugin-rest-endpoint-methods.js/tree/master/docs/repos
-
 name: Continuous Deployment
 
 on:
@@ -42,8 +35,14 @@ jobs:
             - uses: lukka/get-cmake@acb35cf920333f4dc3fc4f424f1b30d5e7d561b4 # v3.31.4
             - uses: actions/setup-python@v4
               with:
-                  python-version: '3.14.0-alpha.4'
+                  python-version: '3.x'
             - run: ./update_glslang_sources.py
+            - name: Set up Xcode and iOS SDK
+              run: |
+                  # Set the correct iOS SDK path dynamically
+                  IOS_SDK_PATH=$(xcodebuild -version -sdk iphoneos Path)
+                  echo "Using iOS SDK: $IOS_SDK_PATH"
+                  echo "IOS_SDK_PATH=$IOS_SDK_PATH" >> $GITHUB_ENV
             - name: Build for iOS (OS64)
               env:
                   CC: ${{matrix.compiler.cc}}
@@ -55,8 +54,8 @@ jobs:
                     -DCMAKE_INSTALL_PREFIX=`pwd`/install \
                     -DCMAKE_SYSTEM_NAME=iOS \
                     -DCMAKE_OSX_ARCHITECTURES="arm64" \  # iOS device architecture (can also use "x86_64;arm64" for simulators)
-                    #-DCMAKE_OSX_DEPLOYMENT_TARGET=10.5 \  # Set to a minimum supported version for iOS
-                    -DCMAKE_OSX_SYSROOT=`xcodebuild -version -sdk iphoneos Path` \  # Use iOS SDK for the build
+                    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \  # Set to a minimum supported version for iOS
+                    -DCMAKE_OSX_SYSROOT=$IOS_SDK_PATH \  # Use iOS SDK dynamically
                     ..
                   make -j4 install
             - name: Test
